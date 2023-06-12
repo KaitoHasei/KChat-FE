@@ -1,0 +1,18 @@
+#kchat__auth {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .auth__wrapper {
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        .auth__header {
+            margin-bottom: 10px;
+        }
+    }
+}
