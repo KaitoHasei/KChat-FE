@@ -61,13 +61,13 @@ const ConversationItem = ({ isSelected, conversation, onClick }) => {
         cursor: "pointer",
         bg: "blackAlpha.300",
 
-        "&>.conversation-options": {
-          display: "block",
-        },
+        // "&>.conversation-options": {
+        //   display: "block",
+        // },
       }}
     >
       {conversation && renderConversationInfo}
-      <Box className="conversation-options" display="none">
+      {/* <Box className="conversation-options" display="none">
         <MenuDrop
           buttonProps={{
             padding: "5px",
@@ -76,7 +76,7 @@ const ConversationItem = ({ isSelected, conversation, onClick }) => {
         >
           <Icon icon="bi:three-dots" />
         </MenuDrop>
-      </Box>
+      </Box> */}
     </Flex>
   );
 };

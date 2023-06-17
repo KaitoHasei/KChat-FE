@@ -1,7 +1,16 @@
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useMutation, useQuery, useSubscription } from "@apollo/client";
-import { Button, Flex, Input, Stack, Text } from "@chakra-ui/react";
+import {
+  Avatar,
+  Button,
+  Flex,
+  Input,
+  SkeletonCircle,
+  SkeletonText,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
 import { Icon } from "@iconify/react";
 import _ from "lodash";
 
@@ -11,7 +20,10 @@ import queries from "@chat/apollo/graphql";
 
 import { ChatContext } from "@chat/contexts/ChatContext";
 
-import { formatConversationName } from "@chat/utils/helpers";
+import {
+  formatConversationName,
+  getConversationImage,
+} from "@chat/utils/helpers";
 
 const retrieveConversationQuery = queries.query.retrieveConversation;
 const getConversationMessagesQuery = queries.query.getConversationMessages;
@@ -30,7 +42,7 @@ const FeedView = () => {
 
   const [messPagination, setMessPagination] = useState({
     offset: 0,
-    limit: 10,
+    limit: 20,
   });
   const [retrieveData, setRetrieveData] = useState({});
   const [messages, setMessages] = useState([]);
@@ -46,24 +58,24 @@ const FeedView = () => {
     },
   });
 
-  const {
-    loading: getConversationMessagesLoading,
-    fetchMore: fetchMoreMessages,
-  } = useQuery(getConversationMessagesQuery, {
-    variables: {
-      inputs: {
-        conversationId,
-        offset: messPagination.offset,
-        limit: messPagination.limit,
+  const { fetchMore: fetchMoreMessages } = useQuery(
+    getConversationMessagesQuery,
+    {
+      variables: {
+        inputs: {
+          conversationId,
+          offset: messPagination.offset,
+          limit: messPagination.limit,
+        },
       },
-    },
-    fetchPolicy: "cache-and-network",
-    onCompleted: (res) => {
-      const _messages = res?.getConversationMessages;
+      fetchPolicy: "cache-and-network",
+      onCompleted: (res) => {
+        const _messages = res?.getConversationMessages;
 
-      setMessages(_messages);
-    },
-  });
+        setMessages(_messages);
+      },
+    }
+  );
 
   const [sendMessage] = useMutation(sendMessageMutation, {
     onCompleted: (res) => console.log(res?.sendMessage),
@@ -73,8 +85,8 @@ const FeedView = () => {
     variables: {
       conversationId: retrieveData?.id,
     },
-    onSubscriptionData: ({ subscriptionData: { data } }) => {
-      const _newMessage = data?.sentMessage?.message;
+    onData: ({ data: res }) => {
+      const _newMessage = res?.data.sentMessage?.message;
 
       if (user?.id !== _newMessage?.userId)
         return setMessages((prev) => [...prev, _newMessage]);
@@ -87,33 +99,32 @@ const FeedView = () => {
   }, [messages]);
 
   // scroll to top fetch more messages
+  // const handleScrollFetchmore = () => {
+  //   console.log(listMessagesRef.current.scrollTop);
+  //   if (listMessagesRef.current.scrollTop !== 0) return;
 
-  const handleScrollFetchmore = () => {
-    console.log(listMessagesRef.current.scrollTop);
-    if (listMessagesRef.current.scrollTop !== 0) return;
+  //   const _offset = messPagination.offset + messPagination.limit;
 
-    const _offset = messPagination.offset + messPagination.limit;
+  //   setMessPagination((prev) => ({
+  //     ...prev,
+  //     offset: _offset,
+  //   }));
 
-    setMessPagination((prev) => ({
-      ...prev,
-      offset: _offset,
-    }));
+  //   return fetchMoreMessages({
+  //     variables: {
+  //       inputs: {
+  //         conversationId,
+  //         offset: _offset,
+  //         limit: messPagination.limit,
+  //       },
+  //     },
+  //   });
+  // };
 
-    return fetchMoreMessages({
-      variables: {
-        inputs: {
-          conversationId,
-          offset: _offset,
-          limit: messPagination.limit,
-        },
-      },
-    });
-  };
-
-  useEffect(() => {
-    window.addEventListener("scroll", handleScrollFetchmore);
-    return () => window.removeEventListener("scroll", handleScrollFetchmore);
-  }, [getConversationMessagesLoading]);
+  // useEffect(() => {
+  //   window.addEventListener("scroll", handleScrollFetchmore);
+  //   return () => window.removeEventListener("scroll", handleScrollFetchmore);
+  // }, [getConversationMessagesLoading]);
 
   const handleSendMessage = () => {
     const message = inputMessageRef.current.value.trim();
@@ -148,7 +159,13 @@ const FeedView = () => {
     };
 
     return (
-      <Stack ref={listMessagesRef} flex="1" px="10px" overflowY="scroll">
+      <Stack
+        justifyContent="end"
+        ref={listMessagesRef}
+        flex="1"
+        px="10px"
+        overflowY="scroll"
+      >
         {messages &&
           messages?.map((message, index) => (
             <Message
@@ -164,8 +181,29 @@ const FeedView = () => {
 
   return (
     <Stack width="100%">
-      <Flex padding="13px" boxShadow="0 1px 1px rgba(0, 0, 0, 0.3)">
-        <Text>To: {formatConversationName(retrieveData, user?.id)}</Text>
+      <Flex
+        padding="9px"
+        alignItems="center"
+        boxShadow="0 1px 1px rgba(0, 0, 0, 0.3)"
+      >
+        {retrieveLoading ? (
+          <>
+            <SkeletonCircle mr="10px" size="8" />
+            <SkeletonText noOfLines={1} spacing={4} skeletonHeight={5} />
+          </>
+        ) : (
+          <>
+            <Avatar
+              mr="10px"
+              name="conversation-image"
+              size="sm"
+              src={getConversationImage(retrieveData, user?.id)}
+            />
+            <Text fontWeight="700">
+              {formatConversationName(retrieveData, user?.id)}
+            </Text>
+          </>
+        )}
       </Flex>
       {renderListMessage}
       <form

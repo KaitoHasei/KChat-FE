@@ -28,6 +28,7 @@ const FindConversationModal = ({ isOpenModal, isMutiple, toggleModal }) => {
   const [searchUsers, { loading: searchUsersLoading }] = useLazyQuery(
     searchUsersQuery,
     {
+      fetchPolicy: "network-only",
       onCompleted: (res) => {
         const _listUser = res?.searchUsers?.users;
 

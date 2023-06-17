@@ -8,6 +8,7 @@ import getConversationMessages from "./query/getConversationMessages";
 import changeUserName from "./mutation/changeUserName";
 import createConversation from "./mutation/createConversation";
 import sendMessage from "./mutation/sendMessage";
+import markReadConversation from "./mutation/markReadConversation";
 
 // Subscription
 import conversationCreated from "./subscription/conversationCreated";
@@ -25,6 +26,7 @@ const mutation = {
   ...changeUserName,
   ...createConversation,
   ...sendMessage,
+  ...markReadConversation,
 };
 
 const subscription = {
