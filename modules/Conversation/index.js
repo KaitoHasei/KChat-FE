@@ -13,7 +13,10 @@ import {
 import { Icon } from "@iconify/react";
 import _ from "lodash";
 
+import useWindowSize from "@chat/hooks/useWindowSize";
+
 import { DropDown, ConversationItem } from "@chat/components";
+import { getScreenMode } from "@chat/components/helper";
 import FindConversationModal from "../FindConversationModal";
 import UserModal from "../UserModal";
 
@@ -37,6 +40,7 @@ const conversationHasMessageSubscription =
   queries.subscription.conversationHasMessage;
 
 const Conversation = () => {
+  const { ipadSmallMode } = getScreenMode(useWindowSize());
   const { conversationId, setConversationId } = useContext(ChatContext);
 
   const [openFindModal, setOpenFindModal] = useState(false);
@@ -127,6 +131,23 @@ const Conversation = () => {
     ],
     [signOut, toggleUserModal]
   );
+
+  const renderFindConversation = useMemo(() => {
+    return (
+      <Text
+        py="3px"
+        mr="3px"
+        width="100%"
+        bg="blackAlpha.500"
+        borderRadius="5px"
+        textAlign="center"
+        cursor="pointer"
+        onClick={toggleFindModal}
+      >
+        Find or start a conversation
+      </Text>
+    );
+  }, []);
 
   const renderListConversation = useMemo(() => {
     const conversationItemLoading = (

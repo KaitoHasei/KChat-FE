@@ -198,8 +198,9 @@ const FeedView = () => {
               name="conversation-image"
               size="sm"
               src={getConversationImage(retrieveData, user?.id)}
+              _hover={{ cursor: "default" }}
             />
-            <Text fontWeight="700">
+            <Text maxWidth="500px" fontWeight="700" noOfLines={1}>
               {formatConversationName(retrieveData, user?.id)}
             </Text>
           </>

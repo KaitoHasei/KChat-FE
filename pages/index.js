@@ -13,7 +13,7 @@ export default function Chat() {
           <Flex className="chat__wrapper" height="100%">
             <Box
               className="chat__conversation"
-              width={{ base: "100%", sm: "80px", md: "360px" }}
+              width={{ base: "100%", sm: "80px", lg: "360px" }}
               bg="whiteAlpha.200"
             >
               <Conversation />
