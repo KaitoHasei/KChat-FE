@@ -1,6 +1,6 @@
-import { useMemo, useState, useContext } from "react";
+import { useMemo, useState, useContext, useEffect } from "react";
 import { signOut, useSession } from "next-auth/react";
-import { useQuery, useSubscription } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import {
   Avatar,
   Box,
@@ -13,10 +13,7 @@ import {
 import { Icon } from "@iconify/react";
 import _ from "lodash";
 
-import useWindowSize from "@chat/hooks/useWindowSize";
-
 import { DropDown, ConversationItem } from "@chat/components";
-import { getScreenMode } from "@chat/components/helper";
 import FindConversationModal from "../FindConversationModal";
 import UserModal from "../UserModal";
 
@@ -24,82 +21,46 @@ import queries from "@chat/apollo/graphql";
 
 import { ChatContext } from "@chat/contexts/ChatContext";
 
-import {
-  CREATE_CONVERSATION_FRAGMENT,
-  GET_CONVERSATIONS_FRAGMENT,
-} from "./fragments";
-
 const { MenuDrop } = DropDown;
 
-const getConversationQuery = queries.query.getConversations(
-  GET_CONVERSATIONS_FRAGMENT
-);
-const conversationCreatedSubscription =
-  queries.subscription.conversationCreated(CREATE_CONVERSATION_FRAGMENT);
-const conversationHasMessageSubscription =
-  queries.subscription.conversationHasMessage;
+const getConversationsQuery = queries.query.getConversations;
+const hasUpdateConversationSubscription =
+  queries.subscription.hasUpdateConversation;
 
 const Conversation = () => {
-  const { ipadSmallMode } = getScreenMode(useWindowSize());
   const { conversationId, setConversationId } = useContext(ChatContext);
 
   const [openFindModal, setOpenFindModal] = useState(false);
   const [openUserModal, setOpenUserModal] = useState(false);
-  const [listConversation, setListConversation] = useState([]);
 
   const { data: session } = useSession();
+  const {
+    data: getConversationsRes,
+    loading: getConversationsLoading,
+    subscribeToMore: subscribeUpdateConversation,
+  } = useQuery(getConversationsQuery);
 
-  const { loading: getConversationsLoading } = useQuery(getConversationQuery, {
-    onCompleted: (res) => {
-      const _conversations = res.getConversations;
+  const conversations = getConversationsRes?.getConversations || [];
 
-      setListConversation(_conversations);
-    },
-  });
+  useEffect(() => {
+    subscribeUpdateConversation({
+      document: hasUpdateConversationSubscription,
+      updateQuery: (prev, { subscriptionData }) => {
+        if (!subscriptionData.data) return prev;
 
-  // excute subscription created conversation
-  // useSubscription(conversationCreatedSubscription, {
-  //   onSubscriptionData: ({ subscriptionData }) => {
-  //     const _newConversation = subscriptionData?.data?.conversationCreated;
+        const conversationUpdated = subscriptionData.data.hasUpdateConversation;
+        const oldConversations = prev.getConversations;
 
-  //     setListConversation((prev) => [_newConversation, ...prev]);
-  //   },
-  // });
-
-  // excute subscription has new message
-  useSubscription(conversationHasMessageSubscription, {
-    onData: ({ data: res }) => {
-      const _conversationHasMessage = res.data.conversationHasMessage;
-      const _conversationUpdate = listConversation?.find(
-        (conversation) => conversation?.id === _conversationHasMessage?.id
-      );
-      const _newListConversations = _.cloneDeep(listConversation);
-
-      if (_conversationUpdate) {
-        const conversationUpdateIndex = listConversation?.findIndex(
-          (conversation) => conversation?.id === _conversationUpdate?.id
+        const removedExistConversation = oldConversations.filter(
+          (conversation) => !conversation.id === conversationUpdated.id
         );
 
-        _newListConversations?.splice(conversationUpdateIndex, 1);
-      }
-
-      _newListConversations?.unshift(_conversationHasMessage);
-
-      setListConversation(_newListConversations);
-    },
-  });
-
-  const toggleFindModal = () => {
-    if (openFindModal) return setOpenFindModal(false);
-
-    return setOpenFindModal(true);
-  };
-
-  const toggleUserModal = () => {
-    if (openUserModal) return setOpenUserModal(false);
-
-    return setOpenUserModal(true);
-  };
+        return Object.assign({}, prev, {
+          getConversations: [conversationUpdated, ...removedExistConversation],
+        });
+      },
+    });
+  }, []);
 
   const handleSelectUserOption = (item) => {
     if (!item?.action) return;
@@ -118,7 +79,7 @@ const Conversation = () => {
           icon: <Icon icon="mdi:user" />,
         },
         render: "User Information",
-        action: () => toggleUserModal(),
+        action: () => setOpenUserModal(true),
       },
       {
         props: {
@@ -129,7 +90,7 @@ const Conversation = () => {
         action: () => signOut(),
       },
     ],
-    [signOut, toggleUserModal]
+    [signOut, setOpenUserModal]
   );
 
   const renderFindConversation = useMemo(() => {
@@ -142,12 +103,12 @@ const Conversation = () => {
         borderRadius="5px"
         textAlign="center"
         cursor="pointer"
-        onClick={toggleFindModal}
+        onClick={() => setOpenFindModal(true)}
       >
         Find or start a conversation
       </Text>
     );
-  }, []);
+  }, [setOpenFindModal]);
 
   const renderListConversation = useMemo(() => {
     const conversationItemLoading = (
@@ -187,7 +148,7 @@ const Conversation = () => {
       <Box className="conversation__mid" pl="5px" flex="1" overflowY="scroll">
         {getConversationsLoading
           ? conversationItemLoading
-          : listConversation?.map((conversation, index) => (
+          : conversations?.map((conversation, index) => (
               <ConversationItem
                 key={index}
                 isSelected={conversationId === conversation?.id}
@@ -197,7 +158,12 @@ const Conversation = () => {
             ))}
       </Box>
     );
-  }, [conversationId, getConversationsLoading, listConversation]);
+  }, [
+    conversationId,
+    getConversationsLoading,
+    conversations,
+    handleClickConversation,
+  ]);
 
   const renderUserInfo = useMemo(() => {
     return (
@@ -243,41 +209,23 @@ const Conversation = () => {
           padding="10px"
           boxShadow="0 1px 1px rgba(0, 0, 0, 0.3)"
         >
-          <Text
-            py="3px"
-            mr="3px"
-            width="100%"
-            bg="blackAlpha.500"
-            borderRadius="5px"
-            textAlign="center"
-            cursor="pointer"
-            onClick={toggleFindModal}
-          >
-            Find or start a conversation
-          </Text>
-          {/* <Flex
-            padding="3px"
-            width="30px"
-            bg="blackAlpha.500"
-            borderRadius="5px"
-            justifyContent="center"
-            alignItems="center"
-            cursor="pointer"
-          >
-            <Icon icon="material-symbols:group" />
-          </Flex> */}
+          {renderFindConversation}
         </Flex>
         {renderListConversation}
         {renderUserInfo}
       </Stack>
       {openFindModal && (
         <FindConversationModal
-          isOpenModal={openFindModal}
-          toggleModal={toggleFindModal}
+          isOpen={openFindModal}
+          onClose={() => setOpenFindModal(false)}
         />
       )}
       {openUserModal && (
-        <UserModal isOpenModal={openUserModal} toggleModal={toggleUserModal} />
+        <UserModal
+          isOpenModal={openUserModal}
+          user={session.user}
+          onClose={() => setOpenUserModal(false)}
+        />
       )}
     </>
   );

@@ -10,8 +10,9 @@ export default {
           name
           image
         }
+        name
         image
-        userHaveSeen
+        userIdsHaveSeen
         createdBy
       }
     }

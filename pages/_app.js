@@ -2,10 +2,9 @@ import { SessionProvider } from "next-auth/react";
 import { ApolloProvider } from "@apollo/client";
 import { ChakraProvider } from "@chakra-ui/react";
 
-import { theme } from "@chat/lib/chakra";
-
 import client from "@chat/apollo";
 
+import { theme } from "@chat/lib/chakra-ui";
 import "@chat/assets/styles/main.scss";
 
 export default function App({

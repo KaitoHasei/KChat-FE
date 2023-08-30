@@ -12,9 +12,9 @@ import PropTypes from "prop-types";
 
 const Modal = ({
   title,
-  footerContent,
+  footer,
   isOpen,
-  isCloseButton,
+  closeButton,
   onClose,
   children,
   ...props
@@ -33,8 +33,8 @@ const Modal = ({
           <ModalBody>{children}</ModalBody>
 
           <ModalFooter>
-            {isCloseButton && <Button onClick={onClose}>Close</Button>}
-            {footerContent}
+            {closeButton && <Button onClick={onClose}>Close</Button>}
+            {footer}
           </ModalFooter>
         </ModalContent>
       </ModalChakra>
@@ -46,18 +46,18 @@ export default Modal;
 
 Modal.propTypes = {
   title: PropTypes.string,
-  footerContent: PropTypes.element,
+  footer: PropTypes.element,
   isOpen: PropTypes.bool,
-  isCloseButton: PropTypes.bool,
+  closeButton: PropTypes.bool,
   onClose: PropTypes.func,
   children: PropTypes.node,
 };
 
 Modal.defaultProps = {
   title: "",
-  footerContent: <></>,
+  footer: <></>,
   isOpen: false,
-  isCloseButton: false,
+  closeButton: false,
   onClose: () => {},
   children: <></>,
 };

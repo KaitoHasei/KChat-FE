@@ -9,9 +9,9 @@ import { Modal } from "@chat/components";
 
 // const changeUserNameMutation = queries.mutation.changeUserName;
 
-const UserModal = ({ isOpenModal, toggleModal }) => {
-  const { data: session } = useSession();
-  const user = session?.user;
+const UserModal = ({ isOpenModal, user, onClose }) => {
+  // const { data: session } = useSession();
+  // const user = session?.user;
 
   // const [isEdit, setEdit] = useState(false);
   // const [userName, setUserName] = useState(user.name);
@@ -45,7 +45,7 @@ const UserModal = ({ isOpenModal, toggleModal }) => {
       isOpen={isOpenModal}
       isCentered
       title="User Information"
-      onClose={toggleModal}
+      onClose={onClose}
     >
       <Box textAlign="center">
         <Avatar name={user?.name} src={user?.image} size="lg" />
@@ -115,10 +115,22 @@ export default UserModal;
 
 UserModal.propTypes = {
   isOpenModal: PropTypes.bool,
-  toggleModal: PropTypes.func,
+  user: PropTypes.shape({
+    id: PropTypes.string,
+    name: PropTypes.string,
+    email: PropTypes.string,
+    image: PropTypes.string,
+  }),
+  onClose: PropTypes.func,
 };
 
 UserModal.defaultProps = {
   isOpenModal: false,
-  toggleModal: () => {},
+  user: {
+    id: null,
+    name: null,
+    email: null,
+    image: null,
+  },
+  onClose: () => {},
 };

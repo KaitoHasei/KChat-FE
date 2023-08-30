@@ -8,12 +8,10 @@ import getConversationMessages from "./query/getConversationMessages";
 import changeUserName from "./mutation/changeUserName";
 import createConversation from "./mutation/createConversation";
 import sendMessage from "./mutation/sendMessage";
-import markReadConversation from "./mutation/markReadConversation";
 
 // Subscription
-import conversationCreated from "./subscription/conversationCreated";
-import conversationHasMessage from "./subscription/conversationHasMessage";
 import sentMessage from "./subscription/sentMessage";
+import hasUpdateConversation from "./subscription/hasUpdateConversation";
 
 const query = {
   ...searchUsers,
@@ -26,13 +24,11 @@ const mutation = {
   ...changeUserName,
   ...createConversation,
   ...sendMessage,
-  ...markReadConversation,
 };
 
 const subscription = {
-  ...conversationCreated,
-  ...conversationHasMessage,
   ...sentMessage,
+  ...hasUpdateConversation,
 };
 
 export default {

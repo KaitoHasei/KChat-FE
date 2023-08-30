@@ -28,7 +28,7 @@ const ConversationItem = ({ isSelected, conversation, onClick }) => {
       session?.user?.id
     );
 
-    const _haveSeenLastestMessage = conversation?.userHaveSeen?.includes(
+    const _haveSeenLastestMessage = conversation?.userIdsHaveSeen?.includes(
       session?.user?.id
     );
 
@@ -44,7 +44,7 @@ const ConversationItem = ({ isSelected, conversation, onClick }) => {
               noOfLines={1}
               fontWeight={_haveSeenLastestMessage ? "400" : "600"}
             >
-              {conversation?.lastMessage?.content}
+              {conversation?.latestMessage?.content}
             </Text>
           </Box>
         </Flex>

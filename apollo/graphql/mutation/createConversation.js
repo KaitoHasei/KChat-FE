@@ -1,10 +1,19 @@
 import { gql } from "@apollo/client";
 
 export default {
-  createConversation: (fragment) => gql`
+  createConversation: gql`
     mutation CreateConversation($listUserId: [String]!) {
       createConversation(listUserId: $listUserId) {
-        ${fragment}
+        id
+        participantIds
+        participants {
+          id
+          name
+          image
+        }
+        name
+        image
+        createdBy
       }
     }
   `,

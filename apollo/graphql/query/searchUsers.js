@@ -4,12 +4,9 @@ export default {
   searchUsers: gql`
     query SearchUsers($searchTerms: String!) {
       searchUsers(searchTerms: $searchTerms) {
-        users {
-          id
-          name
-          email
-          image
-        }
+        id
+        name
+        image
       }
     }
   `,

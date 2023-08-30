@@ -1,5 +1,7 @@
 import { Box, Flex } from "@chakra-ui/react";
 
+import Head from "next/head";
+
 import { ChatProvider } from "@chat/contexts/ChatContext";
 
 import Conversation from "@chat/modules/Conversation";
@@ -8,6 +10,10 @@ import Feed from "@chat/modules/Feed";
 export default function Chat() {
   return (
     <>
+      <Head>
+        <title>KChat</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </Head>
       <ChatProvider>
         <Box id="kchat__chat" height="100vh">
           <Flex className="chat__wrapper" height="100%">

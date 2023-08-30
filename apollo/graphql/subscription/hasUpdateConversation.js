@@ -1,22 +1,23 @@
 import { gql } from "@apollo/client";
 
 export default {
-  conversationHasMessage: gql`
-    subscription ConversationHasMessage {
-      conversationHasMessage {
+  hasUpdateConversation: gql`
+    subscription HasUpdateConversation {
+      hasUpdateConversation {
         id
         participants {
           id
           name
           image
         }
-        lastMessage {
+        latestMessage {
           userId
           content
           createdAt
         }
+        name
         image
-        userHaveSeen
+        userIdsHaveSeen
         createdBy
       }
     }

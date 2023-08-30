@@ -1,10 +1,24 @@
 import { gql } from "@apollo/client";
 
 export default {
-  getConversations: (fragment) => gql`
+  getConversations: gql`
     query GetConversations {
       getConversations {
-        ${fragment}
+        id
+        participants {
+          id
+          name
+          image
+        }
+        name
+        image
+        latestMessage {
+          userId
+          content
+          createdAt
+        }
+        userIdsHaveSeen
+        createdBy
       }
     }
   `,
