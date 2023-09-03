@@ -27,6 +27,9 @@ import {
   getConversationImage,
 } from "@chat/utils/helpers";
 
+const OFFSET_INIT = 0;
+const LIMIT_INIT = 30;
+
 const retrieveConversationQuery = queries.query.retrieveConversation;
 const getConversationMessagesQuery = queries.query.getConversationMessages;
 const sendMessageMutation = queries.mutation.sendMessage;
@@ -43,8 +46,8 @@ const FeedView = () => {
   const inputMessageRef = useRef(null);
 
   const [messagePage, setMessagePage] = useState({
-    offset: 0,
-    limit: 10,
+    offset: OFFSET_INIT,
+    limit: LIMIT_INIT,
   });
 
   const { data: retrieveConversationRes, loading: retrieveLoading } = useQuery(
@@ -68,6 +71,8 @@ const FeedView = () => {
     variables: {
       inputs: {
         conversationId,
+        offset: OFFSET_INIT,
+        limit: LIMIT_INIT,
       },
     },
     fetchPolicy: "cache-and-network",
@@ -105,14 +110,14 @@ const FeedView = () => {
       variables: {
         inputs: {
           conversationId,
-          offset: messagePage.offset + messagePage.limit,
+          offset: messages.length,
           limit: messagePage.limit,
         },
       },
     });
 
     return setMessagePage({
-      offset: messagePage.offset + messagePage.limit,
+      offset: messages.length,
       limit: messagePage.limit,
     });
   };
@@ -152,7 +157,13 @@ const FeedView = () => {
     };
 
     return (
-      <Stack ref={messagesRef} flex="1" px="10px" overflowY="scroll">
+      <Stack
+        ref={messagesRef}
+        flex="1"
+        marginTop="0"
+        px="10px"
+        overflowY="scroll"
+      >
         {getConversationMessagesLoading ? (
           <Box textAlign="center">
             <Spinner size="md" color="teal" />

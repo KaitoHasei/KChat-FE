@@ -2,6 +2,7 @@ import { ApolloClient, HttpLink, InMemoryCache, split } from "@apollo/client";
 import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
 import { getMainDefinition } from "@apollo/client/utilities";
 import { createClient } from "graphql-ws";
+import _ from "lodash";
 import { getSession } from "next-auth/react";
 
 const httpLink = new HttpLink({
@@ -48,7 +49,14 @@ const client = new ApolloClient({
         fields: {
           getConversationMessages: {
             keyArgs: false,
-            merge(existing = [], incoming) {
+            merge(existing = [], incoming = [], options) {
+              console.log({ incoming, options });
+              const { args } = options;
+              const firstExisting = existing?.[0]?.createdAt || null;
+              const firstIncoming = incoming?.[0]?.createdAt || null;
+              const isFetchMore = firstExisting !== firstIncoming;
+
+              if (!isFetchMore) return incoming;
               return [...incoming, ...existing];
             },
           },
