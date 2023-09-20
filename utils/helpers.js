@@ -23,3 +23,18 @@ export const getConversationImage = (conversation, sessionUserId) => {
 
   return listParticipants?.[0]?.image;
 };
+
+export const getTimeFromUTCToGMT = (UTCDateTime) => {
+  const GMTDateTime = new Date(UTCDateTime);
+  const dateTimeNow = new Date();
+
+  const duringDay =
+    dateTimeNow.getDate() === GMTDateTime.getDate() &&
+    dateTimeNow.getMonth() === GMTDateTime.getMonth();
+
+  if (duringDay) return `${GMTDateTime.getHours()}:${GMTDateTime.getMinutes()}`;
+
+  return `${GMTDateTime.getDate()}/${
+    GMTDateTime.getMonth() + 1
+  }/${GMTDateTime.getFullYear()}`;
+};

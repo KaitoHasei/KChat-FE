@@ -80,9 +80,7 @@ const FeedView = () => {
 
   const messages = getConversationMessagesRes?.getConversationMessages || [];
 
-  const [sendMessage] = useMutation(sendMessageMutation, {
-    onCompleted: (res) => console.log(res?.sendMessage),
-  });
+  const [sendMessage] = useMutation(sendMessageMutation);
 
   useEffect(() => {
     subscribeToMoreMessage({

@@ -4,21 +4,24 @@ export default {
   hasUpdateConversation: gql`
     subscription HasUpdateConversation {
       hasUpdateConversation {
-        id
-        participants {
+        conversation {
           id
+          participants {
+            id
+            name
+            image
+          }
+          latestMessage {
+            userId
+            content
+            createdAt
+          }
           name
           image
+          userIdsHaveSeen
+          createdBy
         }
-        latestMessage {
-          userId
-          content
-          createdAt
-        }
-        name
-        image
-        userIdsHaveSeen
-        createdBy
+        actionUpdate
       }
     }
   `,

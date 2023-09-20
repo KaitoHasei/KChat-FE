@@ -1,6 +1,6 @@
 import { useMemo, useState, useContext, useEffect } from "react";
 import { signOut, useSession } from "next-auth/react";
-import { useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import {
   Avatar,
   Box,
@@ -20,10 +20,12 @@ import UserModal from "../UserModal";
 import queries from "@chat/apollo/graphql";
 
 import { ChatContext } from "@chat/contexts/ChatContext";
+import { ACTION_UPDATE } from "./constant";
 
 const { MenuDrop } = DropDown;
 
 const getConversationsQuery = queries.query.getConversations;
+const markAsReadMutation = queries.mutation.markAsRead;
 const hasUpdateConversationSubscription =
   queries.subscription.hasUpdateConversation;
 
@@ -42,14 +44,41 @@ const Conversation = () => {
 
   const conversations = getConversationsRes?.getConversations || [];
 
+  const [markAsRead] = useMutation(markAsReadMutation);
+
   useEffect(() => {
     subscribeUpdateConversation({
       document: hasUpdateConversationSubscription,
       updateQuery: (prev, { subscriptionData }) => {
         if (!subscriptionData.data) return prev;
 
-        const conversationUpdated = subscriptionData.data.hasUpdateConversation;
+        const conversationUpdated =
+          subscriptionData.data.hasUpdateConversation.conversation;
         const oldConversations = prev.getConversations;
+
+        // if (
+        //   subscriptionData.data.hasUpdateConversation.actionUpdate ===
+        //   ACTION_UPDATE.MARK_READ
+        // ) {
+        //   const userIdsHaveSeen = conversationUpdated.userIdsHaveSeen;
+        //   const updateConversations = {
+        //     getConversations: oldConversations.map((conversation) =>
+        //       conversation.id === conversationUpdated.id
+        //         ? {
+        //             ...conversation,
+        //             userIdsHaveSeen,
+        //           }
+        //         : conversation
+        //     ),
+        //   };
+
+        //   console.log({
+        //     userIdsHaveSeen,
+        //     updateConversations,
+        //   });
+
+        //   return updateConversations;
+        // }
 
         const removedExistConversation = oldConversations.filter(
           (conversation) => !conversation.id === conversationUpdated.id
@@ -69,6 +98,15 @@ const Conversation = () => {
   };
 
   const handleClickConversation = (conversation) => {
+    // const readed = conversation?.userIdsHaveSeen?.includes(session?.user?.id);
+
+    // if (!readed)
+    //   markAsRead({
+    //     variables: {
+    //       conversationId: conversation?.id,
+    //     },
+    //   });
+
     return setConversationId(conversation?.id);
   };
 

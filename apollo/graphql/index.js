@@ -12,6 +12,7 @@ import sendMessage from "./mutation/sendMessage";
 // Subscription
 import sentMessage from "./subscription/sentMessage";
 import hasUpdateConversation from "./subscription/hasUpdateConversation";
+import markAsRead from "./mutation/markAsRead";
 
 const query = {
   ...searchUsers,
@@ -24,6 +25,7 @@ const mutation = {
   ...changeUserName,
   ...createConversation,
   ...sendMessage,
+  ...markAsRead,
 };
 
 const subscription = {

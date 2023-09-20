@@ -9,6 +9,7 @@ import DropDown from "../DropDown";
 import {
   formatConversationName,
   getConversationImage,
+  getTimeFromUTCToGMT,
 } from "@chat/utils/helpers";
 
 const { MenuDrop } = DropDown;
@@ -40,12 +41,18 @@ const ConversationItem = ({ isSelected, conversation, onClick }) => {
             <Text fontSize="lg" fontWeight="700" noOfLines={1}>
               {_conversationName}
             </Text>
-            <Text
-              noOfLines={1}
-              fontWeight={_haveSeenLastestMessage ? "400" : "600"}
-            >
-              {conversation?.latestMessage?.content}
-            </Text>
+            <Flex>
+              <Text
+                flex={1}
+                noOfLines={1}
+                fontWeight={_haveSeenLastestMessage ? "400" : "600"}
+              >
+                {conversation?.latestMessage?.content}
+              </Text>
+              <Text fontWeight={_haveSeenLastestMessage ? "400" : "600"}>
+                {getTimeFromUTCToGMT(conversation?.latestMessage?.createdAt)}
+              </Text>
+            </Flex>
           </Box>
         </Flex>
       </>
